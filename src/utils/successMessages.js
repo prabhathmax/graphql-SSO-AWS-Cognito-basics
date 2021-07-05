@@ -4,6 +4,7 @@ const successMessages = {
   resendConfirmation: 'Confirmation link send',
   passwordResetRequest: 'Password reset link sent',
   confirmPasswordReset: 'Password reset successfully',
+  userSignOut: 'User signed out',
 };
 
 export default successMessages;

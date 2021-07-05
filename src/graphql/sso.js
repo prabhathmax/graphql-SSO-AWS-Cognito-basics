@@ -15,6 +15,9 @@ const typeDefs = gql`
   type ConfirmPasswordResetRequest {
     message: String!
   }
+  type UserSignOut {
+      message: String!
+  }
   type AuthenticationInfoSso {
     accessToken: String!
     refreshToken: String!
@@ -43,6 +46,7 @@ const typeDefs = gql`
       token: String!
       password: String!
     ): ConfirmPasswordResetRequest!
+      signOut: UserSignOut!
   }
 `;
 
@@ -124,6 +128,22 @@ const resolvers = {
         .promise();
       return {
         message: successMessages.confirmPasswordReset,
+      };
+    },
+    async logOut(_, __, { secrets, log, email }) {
+      log.access.info({
+        message: `Mutation: logOut UserId: ${email} Description: logOut by user`,
+      });
+      const cognitoSecrets = await secrets.cognito.get();
+      const cognito = await cognitoHelper.cognitoIdentityServiceProvider(cognitoSecrets);
+      await cognito
+        .adminUserGlobalSignOut({
+          UserPoolId: cognitoSecrets.cognitoPoolId,
+          Username: email,
+        })
+        .promise();
+      return {
+        message: 'User signed out',
       };
     },
   },

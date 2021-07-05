@@ -1,17 +1,17 @@
 import { ApolloServer } from 'apollo-server';
-import jwt from 'jsonwebtoken';
 import createSchema from './graphql';
 import createContext from './context';
+import cognitoAuthService from './domain/authentication/cognitoAuthService';
 
-const getCurrentAccountId = async (headers, jwtSecret) => {
+const getCurrentAccountId = async (headers, services, secrets) => {
   const matcher = /^Bearer .+$/gi;
   const { authorization = null } = headers;
   if (authorization && matcher.test(authorization)) {
     const [, token] = authorization.split(/\s+/);
     try {
-      const secret = await jwtSecret.get();
-      const { id: accountId = null } = jwt.verify(token, secret);
-      return accountId;
+      if (token) {
+        return cognitoAuthService(token, services, secrets);
+      }
     } catch (e) {
       // We do nothing so it returns null
     }
@@ -30,17 +30,25 @@ const port = /^\d+$/.test(process.env.PORT) ? Number(process.env.PORT) : 4000;
     context: async ({ req, connection }) => {
       if (connection) {
         // Operation is a Subscription
-        const currentAccountId = await getCurrentAccountId(connection.context, context.secrets.jwt);
+        const currentEmail = await getCurrentAccountId(
+          connection.context,
+          context.services,
+          context.secrets,
+        );
         return {
           ...context,
-          currentAccountId,
+          currentEmail,
         };
       }
       // Operation is a Query/Mutation
-      const currentAccountId = await getCurrentAccountId(req.headers, context.secrets.jwt);
+      const currentEmail = await getCurrentAccountId(
+        req.headers,
+        context.services,
+        context.secrets,
+      );
       return {
         ...context,
-        currentAccountId,
+        currentEmail,
       };
     },
   });
