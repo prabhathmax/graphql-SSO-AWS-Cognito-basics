@@ -6,7 +6,7 @@ import jwkToPem from 'jwk-to-pem';
 import jwt from 'jsonwebtoken';
 import { CognitoUserPool, CognitoUser } from 'amazon-cognito-identity-js';
 
-const cognitoAuthService = async (token, services, secrets) => {
+const cognitoAuth = async (token, services, secrets) => {
   try {
     const cognitoSecrets = await secrets.cognito.get();
     const res = await request
@@ -61,4 +61,18 @@ const cognitoAuthService = async (token, services, secrets) => {
     // throw error;
   }
 };
-export default cognitoAuthService;
+
+const getUserByEmail = async (email, cognitoSecrets) => {
+  const userPool = new CognitoUserPool({
+    UserPoolId: cognitoSecrets.cognitoPoolId,
+    ClientId: cognitoSecrets.cognitoClientId,
+  });
+  return new CognitoUser({
+    Username: email,
+    Pool: userPool,
+  });
+};
+export default {
+  cognitoAuth,
+  getUserByEmail,
+};

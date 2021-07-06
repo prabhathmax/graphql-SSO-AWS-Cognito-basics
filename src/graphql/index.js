@@ -6,8 +6,6 @@ import sso from './sso';
 
 const defaultTypeDefs = gql`
   directive @authenticated on OBJECT | FIELD_DEFINITION
-  directive @hasRole(role: String!) on OBJECT | FIELD_DEFINITION
-  directive @hasPermission(permission: String!) on OBJECT | FIELD_DEFINITION
 
   type Query {
     _empty: String

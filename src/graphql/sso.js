@@ -156,7 +156,7 @@ const resolvers = {
         })
         .promise();
       return {
-        message: 'User signed out',
+        message: successMessages.userSignOut,
       };
     },
   },

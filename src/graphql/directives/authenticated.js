@@ -45,7 +45,7 @@ export default class AuthenticatedDirective extends SchemaDirectiveVisitor {
         }
 
         const context = args[2];
-        if (!context.currentAccountId) {
+        if (!context.currentEmail) {
           throw new AuthenticationError('Not authenticated');
         }
 

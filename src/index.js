@@ -10,7 +10,7 @@ const getCurrentAccountId = async (headers, services, secrets) => {
     const [, token] = authorization.split(/\s+/);
     try {
       if (token) {
-        return cognitoAuthService(token, services, secrets);
+        return cognitoAuthService.cognitoAuth(token, services, secrets);
       }
     } catch (e) {
       // We do nothing so it returns null
