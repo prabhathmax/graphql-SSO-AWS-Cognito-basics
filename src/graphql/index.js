@@ -1,6 +1,5 @@
 import { gql, makeExecutableSchema } from 'apollo-server';
 import merge from 'lodash.merge';
-import account from './account';
 import AuthenticatedDirective from './directives/authenticated';
 import createHasRoleDirective from './directives/has-role';
 import createHasPermissionDirective from './directives/has-permission';
@@ -26,8 +25,8 @@ const defaultTypeDefs = gql`
 
 const createSchema = (context) =>
   makeExecutableSchema({
-    typeDefs: [defaultTypeDefs, account.typeDefs, post.typeDefs, sso.typeDefs],
-    resolvers: merge({}, account.resolvers, post.resolvers, sso.resolvers),
+    typeDefs: [defaultTypeDefs, post.typeDefs, sso.typeDefs],
+    resolvers: merge({}, post.resolvers, sso.resolvers),
     schemaDirectives: {
       authenticated: AuthenticatedDirective,
       hasRole: createHasRoleDirective(context.services.role),

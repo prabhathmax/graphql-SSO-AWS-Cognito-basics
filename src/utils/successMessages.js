@@ -5,6 +5,7 @@ const successMessages = {
   passwordResetRequest: 'Password reset link sent',
   confirmPasswordReset: 'Password reset successfully',
   userSignOut: 'User signed out',
+  userPasswordChanged: 'User password changed',
 };
 
 export default successMessages;

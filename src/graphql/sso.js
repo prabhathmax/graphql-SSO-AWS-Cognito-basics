@@ -1,8 +1,14 @@
 import { gql } from 'apollo-server';
+import { EmailAddressMock, DateTimeMock } from 'graphql-scalars';
+import { GraphQLUpload } from 'graphql-upload';
 import successMessages from '../utils/successMessages';
 import cognitoHelper from '../helpers/cognitoHelper';
 
 const typeDefs = gql`
+  scalar DateTimeMock
+  scalar EmailAddressMock
+  scalar Upload
+
   type RegisterAccount {
     message: String!
   }
@@ -16,7 +22,10 @@ const typeDefs = gql`
     message: String!
   }
   type UserSignOut {
-      message: String!
+    message: String!
+  }
+  type UserPasswordChange {
+    message: String!
   }
   type AuthenticationInfoSso {
     accessToken: String!
@@ -46,11 +55,15 @@ const typeDefs = gql`
       token: String!
       password: String!
     ): ConfirmPasswordResetRequest!
-      signOut: UserSignOut!
+    signOut: UserSignOut!
+    passwordChange(token: String!, newPassword: String!, oldPassword: String!): UserPasswordChange!
   }
 `;
 
 const resolvers = {
+  DateTimeMock,
+  EmailAddressMock,
+  Upload: GraphQLUpload,
   Mutation: {
     async userSignUp(_, { info }, { log, secrets }) {
       log.access.info({
@@ -146,6 +159,23 @@ const resolvers = {
         message: 'User signed out',
       };
     },
+  },
+  async passwordChange(_, { token, newPassword, oldPassword }, { secrets, log, currentEmail }) {
+    log.access.info({
+      message: `Mutation: passwordChange email: ${currentEmail} Description: Change user password`,
+    });
+    const cognitoSecrets = await secrets.cognito.get();
+    const cognito = await cognitoHelper.cognitoIdentityServiceProvider(cognitoSecrets);
+    await cognito
+      .changePassword({
+        AccessToken: token,
+        PreviousPassword: oldPassword,
+        ProposedPassword: newPassword,
+      })
+      .promise();
+    return {
+      message: successMessages.userPasswordChanged,
+    };
   },
 };
 
